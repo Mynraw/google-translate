@@ -1,13 +1,28 @@
 import { useState } from "react";
 
-const Modal = ({ setShowModal }) => {
+const Modal = ({
+  setShowModal,
+  languages,
+  chosenLanguage,
+  setChosenLanguage,
+}) => {
   const [searchedLanguage, setSearchedLanguage] = useState("");
+
+  // gelecek language'leri filtreleyerek aranan dille uyuşup uyuşmadığının kontrolü için
+  const filteredLanguages = languages.filter((language) =>
+    language.toLowerCase().startsWith(searchedLanguage.toLowerCase())
+  );
 
   const handleChange = (e) => {
     setSearchedLanguage(e.target.value);
   };
 
-  console.log(searchedLanguage);
+  const handleClick = (e) => {
+    setChosenLanguage(e.target.textContent);
+    setShowModal(null);
+  };
+
+  // console.log(searchedLanguage);
 
   return (
     <div className="option-list">
@@ -24,7 +39,24 @@ const Modal = ({ setShowModal }) => {
         </div>
       </div>
       <div className="option-container">
-        <ul></ul>
+        <ul>
+          {filteredLanguages?.map((filteredLanguage, index) => (
+            <div className="list-item">
+              <div className="icon">
+                {chosenLanguage === filteredLanguage ? "✓" : ""}
+              </div>
+              <li
+                key={index}
+                onClick={handleClick}
+                style={{
+                  color: chosenLanguage === filteredLanguage ? "#8ab4f8" : null,
+                }}
+              >
+                {filteredLanguage}
+              </li>
+            </div>
+          ))}
+        </ul>
       </div>
     </div>
   );
