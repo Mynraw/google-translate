@@ -8,8 +8,11 @@ import axios from "axios";
 
 const App = () => {
   // useState ile input ve output dillerini takip ediyorum.
-  const [inputLanguage, setInputLanguage] = useState("");
+  const [inputLanguage, setInputLanguage] = useState("Turkish");
   const [outputLanguage, setOutputLanguage] = useState("English");
+  // state for language codes
+  const [inputLanguageCode, setInputLanguageCode] = useState("");
+  const [outputLanguageCode, setOutputLanguageCode] = useState("");
   // Modal'ı handle etmek için;
   const [showModal, setShowModal] = useState(null);
   // Languages
@@ -18,8 +21,10 @@ const App = () => {
   const [textToTranslate, setTextToTranslate] = useState("");
   // Translated text
   const [translatedText, setTranslatedText] = useState("");
+  // Map for language data
+  const [langMap, setLangMap] = useState(new Map());
 
-  const getLanguages = async () => {
+  const getLanguages = () => {
     // RapidAPI Google Translate GET Languages
     const options = {
       method: "GET",
@@ -27,7 +32,7 @@ const App = () => {
       params: { target: "en" },
       headers: {
         // "Accept-Encoding": "application/gzip",
-        "X-RapidAPI-Key": "66a1dce359msh19a1369f4144bb6p166940jsnf5aa3699069e",
+        "X-RapidAPI-Key": "78ca1c5d98msh668f0af6e8f8724p12ac7ejsn7313e5ac5fb0",
         "X-RapidAPI-Host": "google-translate1.p.rapidapi.com",
       },
     };
@@ -36,62 +41,45 @@ const App = () => {
       .request(options)
       .then((response) => {
         // console.log(response.data);
-        const langArray = [];
-        response.data.data.languages.forEach((key) => langArray.push(key.name));
-
-        const langMap = new Map();
+        // response.data.data.languages.forEach((key) => langArray.push(key.name));
         response.data.data.languages.forEach((key) =>
-          langMap.set(`${key.language}`, `${key.name}`)
+          // langMap.set(`${key.name}`, `${key.language}`)
+          setLangMap(langMap.set(`${key.name}`, `${key.language}`))
         );
+        setLanguages([...langMap.keys()]);
 
-        console.log(langMap);
-        setLanguages(langArray);
+        // initial set
+        setInputLanguageCode(langMap.get(inputLanguage));
+        setOutputLanguageCode(langMap.get(outputLanguage));
       })
       .catch((error) => {
         console.error(error);
       });
   };
 
+  // [] => only runs on the first render
   useEffect(() => {
     getLanguages();
   }, []);
 
-  // const translate = async () => {
-  //   const encodedParams = new URLSearchParams();
-  //   encodedParams.append("q", textToTranslate);
-  //   encodedParams.append("target", outputLanguage);
-  //   encodedParams.append("source", inputLanguage);
+  const getLangCode = () => {
+    // gotta get the language code. v2 Translate API requires that.
+    setInputLanguageCode(langMap.get(inputLanguage));
+    setOutputLanguageCode(langMap.get(outputLanguage));
+    // console.log(inputLanguageCode);
+    // console.log(outputLanguageCode);
+  };
 
-  //   const options = {
-  //     method: "POST",
-  //     url: "https://google-translate1.p.rapidapi.com/language/translate/v2",
-  //     headers: {
-  //       "content-type": "application/x-www-form-urlencoded",
-  //       // "Accept-Encoding": "application/gzip",
-  //       "X-RapidAPI-Key": "66a1dce359msh19a1369f4144bb6p166940jsnf5aa3699069e",
-  //       "X-RapidAPI-Host": "google-translate1.p.rapidapi.com",
-  //     },
-  //     data: encodedParams,
-  //   };
+  // runs at the first render and whenever inputLanguage and outputLanguage values has changed
+  useEffect(() => {
+    getLangCode();
+  }, [inputLanguage, outputLanguage]);
 
-  //   axios
-  //     .request(options)
-  //     .then((response) => {
-  //       console.log(response.data);
-  //       setTranslatedText(response.data.translations.translatedText);
-  //     })
-  //     .catch((error) => {
-  //       console.error(error);
-  //     });
-  // };
-
-  // const fetch = require("node-fetch");
-
-  const translate = async () => {
+  const translate = () => {
     const encodedParams = new URLSearchParams();
     encodedParams.append("q", textToTranslate);
-    encodedParams.append("target", outputLanguage);
-    inputLanguage !== "" && encodedParams.append("source", inputLanguage);
+    encodedParams.append("target", outputLanguageCode);
+    inputLanguage !== "" && encodedParams.append("source", inputLanguageCode);
 
     const url =
       "https://google-translate1.p.rapidapi.com/language/translate/v2";
@@ -101,7 +89,7 @@ const App = () => {
       headers: {
         "content-type": "application/x-www-form-urlencoded",
         // "Accept-Encoding": "application/gzip",
-        "X-RapidAPI-Key": "66a1dce359msh19a1369f4144bb6p166940jsnf5aa3699069e",
+        "X-RapidAPI-Key": "78ca1c5d98msh668f0af6e8f8724p12ac7ejsn7313e5ac5fb0",
         "X-RapidAPI-Host": "google-translate1.p.rapidapi.com",
       },
       body: encodedParams,
@@ -109,14 +97,12 @@ const App = () => {
 
     fetch(url, options)
       .then((res) => res.json())
-      .then((json) =>
-        // setTranslatedText(json.data.translations[0].translatedText)
-        console.log(json)
+      .then(
+        (json) => setTranslatedText(json.data.translations[0].translatedText)
+        // console.log(json);
       )
       .catch((err) => console.error("error:" + err));
   };
-
-  // console.log(translatedText);
 
   const handleClick = () => {
     // ortadaki çift yönlü oka tıklandığında input'u output olarak, output'u ise input'a set'lenmesini sağladım.
@@ -124,8 +110,6 @@ const App = () => {
     setInputLanguage(outputLanguage);
     setOutputLanguage(inputLanguage);
   };
-
-  // console.log(inputLanguage);
 
   return (
     <div className="app">
@@ -156,6 +140,10 @@ const App = () => {
       )}
       {showModal && (
         <Modal
+          getLangCode={getLangCode}
+          setInputLanguageCode={
+            showModal === "input" ? setInputLanguageCode : setOutputLanguageCode
+          }
           setShowModal={setShowModal}
           languages={languages}
           chosenLanguage={
