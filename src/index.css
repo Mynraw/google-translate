@@ -49,6 +49,10 @@ textarea {
   margin-top: 10px;
 }
 
+svg {
+  cursor: pointer;
+}
+
 .output textarea {
   background-color: #303134;
 }
@@ -146,4 +150,8 @@ textarea {
   color: #bdc1c6;
   padding: 18px;
   height: 20px;
+}
+
+.right-arrow {
+  cursor: pointer;
 }
