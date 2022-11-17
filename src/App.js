@@ -32,7 +32,7 @@ const App = () => {
       params: { target: "en" },
       headers: {
         // "Accept-Encoding": "application/gzip",
-        "X-RapidAPI-Key": "78ca1c5d98msh668f0af6e8f8724p12ac7ejsn7313e5ac5fb0",
+        "X-RapidAPI-Key": "insert-api-key",
         "X-RapidAPI-Host": "google-translate1.p.rapidapi.com",
       },
     };
@@ -89,7 +89,7 @@ const App = () => {
       headers: {
         "content-type": "application/x-www-form-urlencoded",
         // "Accept-Encoding": "application/gzip",
-        "X-RapidAPI-Key": "78ca1c5d98msh668f0af6e8f8724p12ac7ejsn7313e5ac5fb0",
+        "X-RapidAPI-Key": "insert-api-key",
         "X-RapidAPI-Host": "google-translate1.p.rapidapi.com",
       },
       body: encodedParams,
